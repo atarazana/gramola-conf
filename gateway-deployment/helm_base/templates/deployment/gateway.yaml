@@ -4,8 +4,8 @@ metadata:
   annotations:
     app.openshift.io/connects-to: >-
       ["events",{"apiVersion":"apps/v1","kind":"Deployment","name":"events"}]
-    app.quarkus.io/vcs-url: '{{ .Values.baseRepoUrl }}-gateway.git'
-    app.openshift.io/vcs-uri: '{{ .Values.baseRepoUrl }}-gateway.git'
+    app.quarkus.io/vcs-url: '{{ .Values.gitUrl }}/{{ .Values.gitUsername }}/{{ .Values.appName }}-gateway.git'
+    app.openshift.io/vcs-uri: '{{ .Values.gitUrl }}/{{ .Values.gitUsername }}/{{ .Values.appName }}-gateway.git'
     app.openshift.io/vcs-ref: ''
   name: gateway
   labels:
@@ -32,8 +32,8 @@ spec:
       annotations:
         app.openshift.io/connects-to: >-
           ["events",{"apiVersion":"apps/v1","kind":"Deployment","name":"events"}]
-        app.quarkus.io/vcs-url: '{{ .Values.baseRepoUrl }}-gateway.git'
-        app.openshift.io/vcs-uri: '{{ .Values.baseRepoUrl }}-gateway.git'
+        app.quarkus.io/vcs-url: '{{ .Values.gitUrl }}/{{ .Values.gitUsername }}/{{ .Values.appName }}-gateway.git'
+        app.openshift.io/vcs-uri: '{{ .Values.gitUrl }}/{{ .Values.gitUsername }}/{{ .Values.appName }}-gateway.git'
         app.openshift.io/vcs-ref: ''
     spec:
       containers:

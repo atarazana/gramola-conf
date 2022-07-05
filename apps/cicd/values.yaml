@@ -1,9 +1,9 @@
 appName: gramola
 
 gitUrl: https://github.com
-gitRevision: github
+gitRevision: main
 gitUsername: atarazana
-baseRepoName: gramola
+baseRepoName: gramola-conf
 
 containerRegistryServer: quay.io
 containerRegistryOrg: atarazana

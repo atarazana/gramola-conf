@@ -1,4 +1,8 @@
-baseRepoUrl: https://github.com/atarazana/gramola
+appName: gramola
+gitUrl: https://github.com
+gitRevision: main
+gitUsername: atarazana
+baseRepoName: gramola-conf
 debug: false
 destinationName: in-cluster
 

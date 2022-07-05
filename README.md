@@ -18,7 +18,7 @@ If you want to execute the pipelines section you have to fork this repositories.
 
 NOTE: This is necessary because webhooks need to be created and obviously you need permissions on them.
 
-- CONFIGURATION REPO: https://github.com/atarazana/gramola.git
+- CONFIGURATION REPO: https://github.com/atarazana/gramola-conf.git
 - SOURCE CODE REPO: https://github.com/atarazana/gramola-events.git
 
 
@@ -103,7 +103,10 @@ Change **BASE_REPO_URL** value to point to your forked configuration repo.
 
 
 ```sh
-export BASE_REPO_URL=https://github.com/atarazana/gramola
+export GIT_URL=https://github.com
+export GIT_USERNAME=atarazana
+export BASE_REPO_NAME=gramola-conf
+export GIT_REVISION=main
 
 cat <<EOF | kubectl apply -n openshift-gitops -f -
 apiVersion: argoproj.io/v1alpha1
@@ -126,11 +129,15 @@ spec:
   source:
     helm:
       parameters:
-        - name: baseRepoUrl
-          value: ${BASE_REPO_URL}
+        - name: GIT_URL
+          value: "{{ .Values.gitUrl }}"
+        - name: GIT_USERNAME
+          value: "{{ .Values.gitUsername }}"
+        - name: BASE_REPO_NAME
+          value: "{{ .Values.baseRepoName }}"
     path: argocd/root-apps
-    repoURL: ${BASE_REPO_URL}
-    targetRevision: github
+    repoURL: "${GIT_URL}/${GIT_USERNAME}/${BASE_REPO_NAME}"
+    targetRevision: ${GIT_REVISION}
 EOF
 
 ```
@@ -159,13 +166,17 @@ spec:
   source:
     helm:
       parameters:
-        - name: baseRepoUrl
-          value: ${BASE_REPO_URL}
+        - name: GIT_URL
+          value: "{{ .Values.gitUrl }}"
+        - name: GIT_USERNAME
+          value: "{{ .Values.gitUsername }}"
+        - name: BASE_REPO_NAME
+          value: "{{ .Values.baseRepoName }}"
         - name: destinationName
           value: ${CLUSTER_NAME}
     path: argocd/root-apps-cloud
-    repoURL: ${BASE_REPO_URL}
-    targetRevision: github
+    repoURL: "${GIT_URL}/${GIT_USERNAME}/${BASE_REPO_NAME}"
+    targetRevision: ${GIT_REVISION}
 EOF
 ```
 

@@ -5,8 +5,8 @@ metadata:
     template.openshift.io/expose-service_ip_port: '{.spec.clusterIP}:{.spec.ports[?(.name=="http")].port}'
     app.openshift.io/connects-to: >-
       ["events",{"apiVersion":"apps/v1","kind":"Deployment","name":"events"}]
-    app.openshift.io/vcs-url: '{{ .Values.baseRepoUrl }}-gateway.git'
-    app.quarkus.io/vcs-url: '{{ .Values.baseRepoUrl }}-gateway.git'
+    app.openshift.io/vcs-url: '{{ .Values.gitUrl }}/{{ .Values.gitUsername }}/{{ .Values.appName }}-gateway.git'
+    app.quarkus.io/vcs-url: '{{ .Values.gitUrl }}/{{ .Values.gitUsername }}/{{ .Values.appName }}-gateway.git'
   name: gateway
   labels:
     app.kubernetes.io/name: gateway

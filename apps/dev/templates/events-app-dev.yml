@@ -27,12 +27,18 @@ spec:
     #     - name: clusterName
     #       value: {{ .Values.destinationName }}
     path: events-deployment/overlays/dev
-    repoURL: "{{ .Values.baseRepoUrl }}.git"
-    targetRevision: github
+    repoURL: "{{ .Values.gitUrl }}/{{ .Values.gitUsername }}/{{ .Values.baseRepoName }}.git"
+    targetRevision: {{ .Values.gitRevision }}
     plugin:
       env:
         - name: DESTINATION_NAME
           value: "{{ .Values.destinationName }}"
-        - name: BASE_REPO_URL
-          value: "{{ .Values.baseRepoUrl }}"
+        - name: GIT_URL
+          value: "{{ .Values.gitUrl }}"
+        - name: GIT_USERNAME
+          value: "{{ .Values.gitUsername }}"
+        - name: BASE_REPO_NAME
+          value: "{{ .Values.baseRepoName }}"
+        - name: GIT_REVISION
+          value: "{{ .Values.gitRevision }}"
       name: kustomized-helm
