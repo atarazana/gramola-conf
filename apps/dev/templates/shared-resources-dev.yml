@@ -9,7 +9,8 @@ metadata:
   - resources-finalizer.argocd.argoproj.io
 spec:
   syncPolicy:
-    automated: {}
+    automated:
+      selfHeal: true
   destination:
     namespace: gramola-dev
     name: {{ .Values.destinationName }}

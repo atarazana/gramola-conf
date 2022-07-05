@@ -190,7 +190,8 @@ spec:
     name: in-cluster
   project: default
   syncPolicy:
-    automated: {}
+    automated:
+      selfHeal: true
   source:
     helm:
       parameters:
