@@ -16,10 +16,16 @@ spec:
   source:
     helm:
       parameters:
-        - name: baseRepoUrl
-          value: "{{ .Values.baseRepoUrl }}"
+        - name: gitUrl
+          value: "{{ .Values.gitUrl }}"
+        - name: gitUsername
+          value: "{{ .Values.gitUsername }}"
+        - name: baseRepoName
+          value: "{{ .Values.baseRepoName }}"
+        - name: gitRevision
+          value: "{{ .Values.gitRevision }}"
         - name: destinationName
           value: {{ .Values.destinationName }}
     path: apps/test-cloud
-    repoURL: "{{ .Values.baseRepoUrl }}.git"
-    targetRevision: github
+    repoURL: "{{ .Values.gitUrl }}/{{ .Values.gitUsername }}/{{ .Values.baseRepoName }}.git"
+    targetRevision: {{ .Values.gitRevision }}

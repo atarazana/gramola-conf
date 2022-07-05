@@ -26,12 +26,6 @@ NOTE: This is necessary because webhooks need to be created and obviously you ne
 
 We're using a custom plugin called `kustomized-helm` if you're interested have a look at section `configManagementPlugins` in `./util/bootstrap/2.openshift-gitops-patch`.
 
-# Adjust permissions of Service Account
-
-```sh
-kubectl apply -f util/argocd-service-account-permissions.yaml
-```
-
 # Log in ArgoCD with CLI
 
 ```sh
@@ -99,7 +93,7 @@ argocd proj list
 
 # Create Root Apps
 
-Change **BASE_REPO_URL** value to point to your forked configuration repo.
+Change environment variables accordingly to point to your forked configuration repo.
 
 
 ```sh
@@ -129,12 +123,14 @@ spec:
   source:
     helm:
       parameters:
-        - name: GIT_URL
-          value: "{{ .Values.gitUrl }}"
-        - name: GIT_USERNAME
-          value: "{{ .Values.gitUsername }}"
-        - name: BASE_REPO_NAME
-          value: "{{ .Values.baseRepoName }}"
+        - name: gitUrl
+          value: "${GIT_URL}"
+        - name: gitUsername
+          value: "${GIT_USERNAME}"
+        - name: baseRepoName
+          value: "${BASE_REPO_NAME}"
+        - name: gitRevision
+          value: "${GIT_REVISION}"
     path: argocd/root-apps
     repoURL: "${GIT_URL}/${GIT_USERNAME}/${BASE_REPO_NAME}"
     targetRevision: ${GIT_REVISION}
@@ -166,12 +162,14 @@ spec:
   source:
     helm:
       parameters:
-        - name: GIT_URL
-          value: "{{ .Values.gitUrl }}"
-        - name: GIT_USERNAME
-          value: "{{ .Values.gitUsername }}"
-        - name: BASE_REPO_NAME
-          value: "{{ .Values.baseRepoName }}"
+        - name: gitUrl
+          value: "${GIT_URL}"
+        - name: gitUsername
+          value: "${GIT_USERNAME}"
+        - name: baseRepoName
+          value: "${BASE_REPO_NAME}"
+        - name: gitRevision
+          value: "${GIT_REVISION}"
         - name: destinationName
           value: ${CLUSTER_NAME}
     path: argocd/root-apps-cloud
@@ -206,11 +204,17 @@ spec:
   source:
     helm:
       parameters:
-        - name: baseRepoUrl
-          value: ${BASE_REPO_URL}
+        - name: gitUrl
+          value: "${GIT_URL}"
+        - name: gitUsername
+          value: "${GIT_USERNAME}"
+        - name: baseRepoName
+          value: "${BASE_REPO_NAME}"
+        - name: gitRevision
+          value: "${GIT_REVISION}"
     path: argocd/cicd
-    repoURL: ${BASE_REPO_URL}.git
-    targetRevision: github
+    repoURL: "${GIT_URL}/${GIT_USERNAME}/${BASE_REPO_NAME}"
+    targetRevision: ${GIT_REVISION}
 EOF
 ```
 
