@@ -116,11 +116,17 @@ spec:
                   source:
                     helm:
                       parameters:
-                        - name: baseRepoUrl
-                          value: https://github.com/atarazana/gramola
+                        - name: gitUrl
+                          value: "https://github.com"
+                        - name: gitUsername
+                          value: "atarazana"
+                        - name: baseRepoName
+                          value: "gramola-conf"
+                        - name: gitRevision
+                          value: "main"
                     path: argocd/root-apps
-                    repoURL: https://github.com/atarazana/gramola
-                    targetRevision: github  
+                    repoURL: https://github.com/atarazana/gramola-conf
+                    targetRevision: main  
 
     - objectDefinition:
         apiVersion: policy.open-cluster-management.io/v1
@@ -153,11 +159,17 @@ spec:
                   source:
                     helm:
                       parameters:
-                        - name: baseRepoUrl
-                          value: https://github.com/atarazana/gramola
+                        - name: gitUrl
+                          value: "https://github.com"
+                        - name: gitUsername
+                          value: "atarazana"
+                        - name: baseRepoName
+                          value: "gramola-conf"
+                        - name: gitRevision
+                          value: "main"
                     path: argocd/cicd
-                    repoURL: https://github.com/atarazana/gramola.git
-                    targetRevision: github    
+                    repoURL: https://github.com/atarazana/gramola-conf
+                    targetRevision: main    
 
 ---
 apiVersion: policy.open-cluster-management.io/v1

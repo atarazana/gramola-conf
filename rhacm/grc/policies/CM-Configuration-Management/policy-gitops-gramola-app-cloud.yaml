@@ -42,13 +42,19 @@ spec:
                   source:
                     helm:
                       parameters:
-                        - name: baseRepoUrl
-                          value: https://github.com/atarazana/gramola
+                        - name: gitUrl
+                          value: "https://github.com"
+                        - name: gitUsername
+                          value: "atarazana"
+                        - name: baseRepoName
+                          value: "gramola-conf"
+                        - name: gitRevision
+                          value: "main"
                         - name: destinationName
                           value: aws-managed1
                     path: argocd/root-apps-cloud
-                    repoURL: https://github.com/atarazana/gramola
-                    targetRevision: github
+                    repoURL: https://github.com/atarazana/gramola-conf
+                    targetRevision: main
 
 ---
 apiVersion: policy.open-cluster-management.io/v1
