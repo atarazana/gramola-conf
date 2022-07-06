@@ -97,36 +97,83 @@ spec:
             - complianceType: musthave
               objectDefinition:
                 apiVersion: argoproj.io/v1alpha1
-                kind: Application
+                kind: ApplicationSet
                 metadata:
-                  name: gramola-root-app
+                  name: gramola
                   namespace: openshift-gitops
                   labels:
                     argocd-root-app: "true"
-                  finalizers:
-                  - resources-finalizer.argocd.argoproj.io
                 spec:
-                  destination:
-                    namespace: openshift-gitops
-                    name: in-cluster
-                  project: default
-                  syncPolicy:
-                    automated:
-                      selfHeal: true                    
-                  source:
-                    helm:
-                      parameters:
-                        - name: gitUrl
-                          value: "https://github.com"
-                        - name: gitUsername
-                          value: "atarazana"
-                        - name: baseRepoName
-                          value: "gramola-conf"
-                        - name: gitRevision
-                          value: "main"
-                    path: argocd/root-apps
-                    repoURL: https://github.com/atarazana/gramola-conf
-                    targetRevision: main  
+                  generators:
+                  - list:
+                      elements:
+                      - env: dev
+                        desc: "Gramola Dev"
+                      - env: test
+                        desc: "Gramola Test"
+                  template:
+                    metadata:
+                      name: gramola-root-app-{{ env }}
+                      namespace: openshift-gitops
+                      labels:
+                        argocd-root-app: "true"
+                      finalizers:
+                      - resources-finalizer.argocd.argoproj.io
+                    spec:
+                      destination:
+                        namespace: openshift-gitops
+                        name: in-cluster
+                      project: default
+                      syncPolicy:
+                        automated:
+                          selfHeal: true
+                      source:
+                        helm:
+                          parameters:
+                            - name: gitUrl
+                              value: "https://github.com"
+                            - name: gitUsername
+                              value: "atarazana"
+                            - name: baseRepoName
+                              value: "gramola-conf"
+                            - name: gitRevision
+                              value: "main"
+                        path: apps/{{ env }}
+                        repoURL: https://github.com/atarazana/gramola-conf
+                        targetRevision: main
+            # - complianceType: musthave
+            #   objectDefinition:
+            #     apiVersion: argoproj.io/v1alpha1
+            #     kind: Application
+            #     metadata:
+            #       name: gramola-root-app
+            #       namespace: openshift-gitops
+            #       labels:
+            #         argocd-root-app: "true"
+            #       finalizers:
+            #       - resources-finalizer.argocd.argoproj.io
+            #     spec:
+            #       destination:
+            #         namespace: openshift-gitops
+            #         name: in-cluster
+            #       project: default
+            #       syncPolicy:
+            #         automated:
+            #           selfHeal: true                    
+            #       source:
+            #         helm:
+            #           parameters:
+            #             - name: gitUrl
+            #               value: "https://github.com"
+            #             - name: gitUsername
+            #               value: "atarazana"
+            #             - name: baseRepoName
+            #               value: "gramola-conf"
+            #             - name: gitRevision
+            #               value: "main"
+            #         path: argocd/root-apps
+            #         repoURL: https://github.com/atarazana/gramola-conf
+            #         targetRevision: main  
 
     - objectDefinition:
         apiVersion: policy.open-cluster-management.io/v1

@@ -135,7 +135,58 @@ spec:
     repoURL: "${GIT_URL}/${GIT_USERNAME}/${BASE_REPO_NAME}"
     targetRevision: ${GIT_REVISION}
 EOF
+```
 
+Using ApplicationSet: 
+
+```sh
+cat <<EOF | kubectl apply -n openshift-gitops -f -
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: gramola
+  namespace: openshift-gitops
+  labels:
+    argocd-root-app: "true"
+spec:
+  generators:
+  - list:
+      elements:
+      - env: dev
+        desc: "Gramola Dev"
+      - env: test
+        desc: "Gramola Test"
+  template:
+    metadata:
+      name: gramola-root-app-{{ env }}
+      namespace: openshift-gitops
+      labels:
+        argocd-root-app: "true"
+      finalizers:
+      - resources-finalizer.argocd.argoproj.io
+    spec:
+      destination:
+        namespace: openshift-gitops
+        name: in-cluster
+      project: default
+      syncPolicy:
+        automated:
+          selfHeal: true
+      source:
+        helm:
+          parameters:
+            - name: gitUrl
+              value: "${GIT_URL}"
+            - name: gitUsername
+              value: "${GIT_USERNAME}"
+            - name: baseRepoName
+              value: "${BASE_REPO_NAME}"
+            - name: gitRevision
+              value: "${GIT_REVISION}"
+        path: apps/{{ env }}
+        repoURL: "${GIT_URL}/${GIT_USERNAME}/${BASE_REPO_NAME}"
+        targetRevision: ${GIT_REVISION}
+EOF
 ```
 
 If an additional cluster has been set up
@@ -175,6 +226,58 @@ spec:
     path: argocd/root-apps-cloud
     repoURL: "${GIT_URL}/${GIT_USERNAME}/${BASE_REPO_NAME}"
     targetRevision: ${GIT_REVISION}
+EOF
+```
+
+Using ApplicationSet:
+
+```sh
+cat <<EOF | kubectl apply -n openshift-gitops -f -
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: gramola-cloud
+  namespace: openshift-gitops
+  labels:
+    argocd-root-app: "true"
+spec:
+  generators:
+  - list:
+      elements:
+      - env: test-cloud
+        desc: "Gramola Test"
+  template:
+    metadata:
+      name: gramola-root-app-{{ env }}
+      namespace: openshift-gitops
+      labels:
+        argocd-root-app-cloud: "true"
+      finalizers:
+      - resources-finalizer.argocd.argoproj.io
+    spec:
+      destination:
+        namespace: openshift-gitops
+        name: in-cluster
+      project: default
+      syncPolicy:
+        automated:
+          selfHeal: true
+      source:
+        helm:
+          parameters:
+            - name: gitUrl
+              value: "${GIT_URL}"
+            - name: gitUsername
+              value: "${GIT_USERNAME}"
+            - name: baseRepoName
+              value: "${BASE_REPO_NAME}"
+            - name: gitRevision
+              value: "${GIT_REVISION}"
+            - name: destinationName
+              value: ${CLUSTER_NAME}
+        path: apps/{{ env }}
+        repoURL: "${GIT_URL}/${GIT_USERNAME}/${BASE_REPO_NAME}"
+        targetRevision: ${GIT_REVISION}
 EOF
 ```
 
