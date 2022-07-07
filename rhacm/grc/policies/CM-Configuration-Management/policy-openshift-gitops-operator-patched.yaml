@@ -211,4 +211,4 @@ spec:
     type: ManagedClusterConditionAvailable
   clusterSelector:
     matchExpressions:
-      - {key: deployer, operator: In, values: ["argo-patched"]}
+      - {key: name, operator: In, values: ["local-cluster"]}
