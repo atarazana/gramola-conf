@@ -17,6 +17,8 @@ spec:
         kind: ConfigurationPolicy
         metadata:
           name: gramola-argo-app-cloud
+          annotations:
+            policy.open-cluster-management.io/disable-templates: "true"
         spec:
           remediationAction: inform # will be overridden by remediationAction in parent policy
           severity: low
