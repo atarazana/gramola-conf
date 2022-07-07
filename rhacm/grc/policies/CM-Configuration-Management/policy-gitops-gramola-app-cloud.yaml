@@ -16,6 +16,8 @@ spec:
         kind: ConfigurationPolicy
         metadata:
           name: gramola-argo-app-cloud
+        annotations:
+          policy.open-cluster-management.io/disable-templates: "true"
         spec:
           remediationAction: inform # will be overridden by remediationAction in parent policy
           severity: low
@@ -37,7 +39,7 @@ spec:
                         desc: "Gramola Test"
                   template:
                     metadata:
-                      name: gramola-root-app-{{ '{{ env }}' }}
+                      name: gramola-root-app-{{ env }}
                       namespace: openshift-gitops
                       labels:
                         argocd-root-app-cloud: "true"
