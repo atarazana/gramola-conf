@@ -9,7 +9,7 @@ data:
   pipeline-name: openshift-pipelines-operator-rh
   pipeline-source: redhat-operators
   pipeline-source-ns: openshift-marketplace
-  pipeline-starting-csv: openshift-pipelines-operator-rh.v1.7.1
+  pipeline-starting-csv: openshift-pipelines-operator-rh.v1.6.3
   gitops-channel: stable
   gitops-install-plan: Automatic
   gitops-name: openshift-gitops-operator
