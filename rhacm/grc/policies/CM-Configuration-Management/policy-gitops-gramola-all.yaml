@@ -115,7 +115,7 @@ spec:
                         desc: "Gramola Test"
                   template:
                     metadata:
-                      name: gramola-root-app-{{ '{{ env }}' }}
+                      name: gramola-root-app-{{ env }}
                       namespace: openshift-gitops
                       labels:
                         argocd-root-app: "true"
