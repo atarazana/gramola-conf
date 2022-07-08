@@ -28,7 +28,7 @@ spec:
                 apiVersion: argoproj.io/v1alpha1
                 kind: ApplicationSet
                 metadata:
-                  name: gramola
+                  name: gramola-cloud
                   namespace: openshift-gitops
                   labels:
                     argocd-root-app: "true"
