@@ -34,7 +34,7 @@ spec:
                   name: '{{hub fromConfigMap "" "policies-config" "pipeline-name" hub}}'
                   source: '{{hub fromConfigMap "" "policies-config" "pipeline-source" hub}}'
                   sourceNamespace: '{{hub fromConfigMap "" "policies-config" "pipeline-source-ns" hub}}'
-                  startingCSV: '{{hub fromConfigMap "" "policies-config" "pipeline-starting-csv" hub}}'
+                  #startingCSV: '{{hub fromConfigMap "" "policies-config" "pipeline-starting-csv" hub}}'
 
 ---
 apiVersion: policy.open-cluster-management.io/v1

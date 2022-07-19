@@ -55,7 +55,7 @@ spec:
                   name: '{{hub fromConfigMap "" "policies-config" "odf-name" hub}}'
                   source: '{{hub fromConfigMap "" "policies-config" "odf-source" hub}}'
                   sourceNamespace: '{{hub fromConfigMap "" "policies-config" "odf-source-ns" hub}}'
-                  startingCSV: '{{hub fromConfigMap "" "policies-config" "odf-starting-csv" hub}}'
+                  #startingCSV: '{{hub fromConfigMap "" "policies-config" "odf-starting-csv" hub}}'
 
 
     - objectDefinition:
@@ -82,7 +82,7 @@ spec:
                   name: '{{hub fromConfigMap "" "policies-config" "quay-name" hub}}'
                   source: '{{hub fromConfigMap "" "policies-config" "quay-source" hub}}'
                   sourceNamespace: '{{hub fromConfigMap "" "policies-config" "quay-source-ns" hub}}'
-                  startingCSV: '{{hub fromConfigMap "" "policies-config" "quay-starting-csv" hub}}'                  
+                  #startingCSV: '{{hub fromConfigMap "" "policies-config" "quay-starting-csv" hub}}'                  
 
     - objectDefinition:
         apiVersion: policy.open-cluster-management.io/v1
