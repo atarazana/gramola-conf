@@ -12,6 +12,14 @@ or
 kubectl apply -k deploy/
 ```
 
+> ![WARNING](../images/warning-icon.png) **(*) WARNING**: You need a user with `subscription-administrator` role granted.
+
+Ex. How to grant it:
+
+```bash
+oc create clusterrolebinding acm-policy-editor --clusterrole=open-cluster-management:subscription-admin --user=[My_User]
+```
+
 This will create a namespace called `rhacm-policies` and will deploy the policies stored here:
 [policies](grc/policies/CM-Configuration-Management).
 
