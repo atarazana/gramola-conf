@@ -422,7 +422,13 @@ spec:
                                         terminationMessagePolicy: File
                                       restartPolicy: Never
                                       serviceAccountName: occli                                                                                                                                                                                          
-                
+                        image: image-registry.openshift-image-registry.svc:5000/openshift/cli:latest
+                        name: quay-config-preparation
+                        resources: {}
+                        terminationMessagePath: /dev/termination-log
+                        terminationMessagePolicy: File
+                      restartPolicy: Never
+                      serviceAccountName: occli                       
 
 ---
 apiVersion: policy.open-cluster-management.io/v1
