@@ -461,4 +461,4 @@ spec:
     type: ManagedClusterConditionAvailable
   clusterSelector:
     matchExpressions:
-      - {key: quay, operator: In, values: ["install-config"]}
+      - {key: name, operator: In, values: ["local-cluster"]}
