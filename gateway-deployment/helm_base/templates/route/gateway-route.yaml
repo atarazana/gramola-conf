@@ -11,8 +11,8 @@ metadata:
     template.openshift.io/expose-uri: https://{.spec.host}{.spec.path}
     app.openshift.io/connects-to: >-
       ["events",{"apiVersion":"apps/v1","kind":"Deployment","name":"events"}]
-    app.openshift.io/vcs-url: '{{ .Values.gitUrl }}/{{ .Values.gitUsername }}/{{ .Values.appName }}-gateway.git'
-    app.quarkus.io/vcs-url: '{{ .Values.gitUrl }}/{{ .Values.gitUsername }}/{{ .Values.appName }}-gateway.git'
+    app.openshift.io/vcs-url: '{{ .Values.baseRepoUrl }}-gateway.git'
+    app.quarkus.io/vcs-url: '{{ .Values.baseRepoUrl }}-gateway.git'
 spec:
   path: /
   to:
