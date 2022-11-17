@@ -1,8 +1,8 @@
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: EventListener
 metadata:
-  name: "{{ .Values.gramolaEventsCiPushTriggerRootName }}-listener"
-  namespace: {{ .Values.cicdNamespace }}
+  name: "{{ .Values.gramolaEventsCiPushTriggerRootName }}-github-listener"
+  namespace: {{ printf "%s%s" .Values.cicdNamespace .Values.namespaceSuffix }}
 spec:
   serviceAccountName: {{ .Values.pipelinesServiceAccountName }}
   triggers:
@@ -30,50 +30,160 @@ spec:
         #     filter: "body.action in ['opened', 'synchronize', 'reopened']"
       bindings:
         - kind: TriggerBinding
-          ref: "{{ .Values.gramolaEventsCiPushTriggerRootName }}-trigger-binding"
+          ref: "{{ .Values.gramolaEventsCiPushTriggerRootName }}-github-trigger-binding"
       template:
         ref: "{{ .Values.gramolaEventsCiPushTriggerRootName }}-trigger-template"
-
 ---
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: TriggerBinding
 metadata:
-  name: "{{ .Values.gramolaEventsCiPushTriggerRootName }}-trigger-binding"
-  namespace: {{ .Values.cicdNamespace }}
+  name: "{{ .Values.gramolaEventsCiPushTriggerRootName }}-github-trigger-binding"
+  namespace: {{ printf "%s%s" .Values.cicdNamespace .Values.namespaceSuffix }}
   annotations:
     argocd.argoproj.io/sync-wave: "-1"
 spec:
   params:
   - name: gitRepositoryUrl
-    value: $(body.repository.url)
+    value: $(body.repository.clone_url)
   - name: gitRepository
     value: $(body.repository.full_name)
   - name: gitRevision
-    value: $(body.head_commit.id)
+    value: $(body.after)
   - name: contentType
     value: $(header.Content-Type)
   - name: gitId
     value: $(body.after)
-
+  - name: gitProvider
+    value: github
+---
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: EventListener
+metadata:
+  name: "{{ .Values.gramolaEventsCiPushTriggerRootName }}-gitea-listener"
+  namespace: {{ printf "%s%s" .Values.cicdNamespace .Values.namespaceSuffix }}
+spec:
+  serviceAccountName: {{ .Values.pipelinesServiceAccountName }}
+  triggers:
+    - name: github-listener
+      interceptors:
+        - ref:
+            name: github
+            kind: ClusterInterceptor
+            apiVersion: triggers.tekton.dev
+          params:
+            # - name: secretRef
+            #   value: 
+            #     secretName: {{ .Values.gitPatSecretName }}
+            #     secretKey: {{ .Values.gitPatSecretKey }}
+            - name: eventTypes
+              value:
+                - push
+        # - github:
+        #     # secretRef:
+        #     #   secretName: github-secret
+        #     #   secretKey: secretToken
+        #     eventTypes:
+        #       - push
+        # - cel:
+        #     filter: "body.action in ['opened', 'synchronize', 'reopened']"
+      bindings:
+        - kind: TriggerBinding
+          ref: "{{ .Values.gramolaEventsCiPushTriggerRootName }}-gitea-trigger-binding"
+      template:
+        ref: "{{ .Values.gramolaEventsCiPushTriggerRootName }}-trigger-template"
+---
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: TriggerBinding
+metadata:
+  name: "{{ .Values.gramolaEventsCiPushTriggerRootName }}-gitea-trigger-binding"
+  namespace: {{ printf "%s%s" .Values.cicdNamespace .Values.namespaceSuffix }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  params:
+  - name: gitRepositoryUrl
+    value: $(body.repository.clone_url)
+  - name: gitRepository
+    value: $(body.repository.full_name)
+  - name: gitRevision
+    value: $(body.after)
+  - name: contentType
+    value: $(header.Content-Type)
+  - name: gitId
+    value: $(body.after)
+  - name: gitProvider
+    value: gitea
+---
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: EventListener
+metadata:
+  name: "{{ .Values.gramolaEventsCiPushTriggerRootName }}-gitlab-listener"
+  namespace: {{ printf "%s%s" .Values.cicdNamespace .Values.namespaceSuffix }}
+spec:
+  serviceAccountName: {{ .Values.pipelinesServiceAccountName }}
+  triggers:
+    - name: gitlab-listener
+      interceptors:
+        - ref:
+            name: gitlab
+            kind: ClusterInterceptor
+            apiVersion: triggers.tekton.dev
+          params:
+            # - name: secretRef
+            #   value: 
+            #     secretName: {{ .Values.gitPatSecretName }}
+            #     secretKey: {{ .Values.gitPatSecretKey }}
+            - name: eventTypes
+              value:
+                - push
+      bindings:
+        - kind: TriggerBinding
+          ref: "{{ .Values.gramolaEventsCiPushTriggerRootName }}-gitlab-trigger-binding"
+      template:
+        ref: "{{ .Values.gramolaEventsCiPushTriggerRootName }}-trigger-template"
+---
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: TriggerBinding
+metadata:
+  name: "{{ .Values.gramolaEventsCiPushTriggerRootName }}-gitlab-trigger-binding"
+  namespace: {{ printf "%s%s" .Values.cicdNamespace .Values.namespaceSuffix }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  params:
+  - name: gitRepositoryUrl
+    value: $(body.repository.clone_url)
+  - name: gitRepository
+    value: $(body.repository.full_name)
+  - name: gitRevision
+    value: $(body.after)
+  - name: contentType
+    value: $(header.Content-Type)
+  - name: gitId
+    value: $(body.after)
+  - name: gitProvider
+    value: gitlab
 ---
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: TriggerTemplate
 metadata:
   name: "{{ .Values.gramolaEventsCiPushTriggerRootName }}-trigger-template"
-  namespace: {{ .Values.cicdNamespace }}
+  namespace: {{ printf "%s%s" .Values.cicdNamespace .Values.namespaceSuffix }}
   annotations:
     argocd.argoproj.io/sync-wave: "-1"
 spec:
   params:
   - name: gitRepositoryUrl
+  - name: gitRepository
   - name: gitRevision
   - name: gitId
+  - name: gitProvider
   resourcetemplates:
   - apiVersion: tekton.dev/v1beta1
     kind: PipelineRun
     metadata:
       generateName: "{{ .Values.gramolaEventsCiPushTriggerRootName }}-plr-"
-      namespace: {{ .Values.cicdNamespace }}
+      namespace: {{ printf "%s%s" .Values.cicdNamespace .Values.namespaceSuffix }}
       labels:
         app.kubernetes.io/instance: {{ .Values.gramolaEventsServiceName }}
         pipeline.openshift.io/runtime: quarkus
@@ -83,14 +193,19 @@ spec:
       params:
         - name: APP_NAME
           value: "{{ .Values.appName }}-{{ .Values.gramolaEventsServiceName }}"
+        - name: GIT_PROVIDER
+          value: $(tt.params.gitProvider)
         - name: GIT_REPO
           value: $(tt.params.gitRepositoryUrl)
+        - name: GIT_REPO_NAME
+          value: $(tt.params.gitRepository)
         - name: GIT_REVISION
           value: $(tt.params.gitRevision)
         - name: GIT_REPO_CONFIG
-          value: "{{ .Values.gitUrl }}/{{ .Values.gitUsername }}/{{ .Values.baseRepoName }}"
+          # value: "{{ .Values.gitUrl }}/{{ .Values.gitUsername }}/{{ .Values.baseRepoName }}"
+          value: "{{ .Values.baseRepoUrl }}"
         - name: GIT_REVISION_CONFIG
-          value: "{{ .Values.gitRevision }}"
+          value: main
         - name: IMAGE_NAME
           value: >-
             {{ .Values.containerRegistryServer }}/{{ .Values.containerRegistryOrg }}/{{ .Values.appName }}-{{ .Values.gramolaEventsServiceName }}
@@ -115,3 +230,4 @@ spec:
         - name: workspace-cache
           persistentVolumeClaim:
             claimName: "{{ .Values.gramolaEventsServiceName }}-cache-pvc"
+

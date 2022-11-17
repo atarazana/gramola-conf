@@ -5,7 +5,7 @@ metadata:
     tekton.dev/displayName: buildah custom build
     tekton.dev/pipelines.minVersion: '0.19'
     tekton.dev/tags: 'buildah, workspace'
-  name: buildah-custom-build
+  name: {{ printf "buildah-custom-build%s" .Values.namespaceSuffix }}
 
   labels:
     app.kubernetes.io/version: '0.1'
@@ -92,6 +92,10 @@ spec:
         - mountPath: /var/lib/containers
           name: varlibcontainers
       workingDir: $(workspaces.source.path)
+      securityContext:
+        capabilities:
+          add:
+            - SETFCAP
     - command:
         - buildah
         - bud
@@ -110,6 +114,10 @@ spec:
         - mountPath: /var/lib/containers
           name: varlibcontainers
       workingDir: $(workspaces.source.path)
+      securityContext:
+        capabilities:
+          add:
+            - SETFCAP
     - command:
         - buildah
         - push
@@ -125,6 +133,10 @@ spec:
         - mountPath: /var/lib/containers
           name: varlibcontainers
       workingDir: $(workspaces.source.path)
+      securityContext:
+        capabilities:
+          add:
+            - SETFCAP
     - image: $(params.BUILDER_IMAGE)
       name: digest-to-results
       resources: {}

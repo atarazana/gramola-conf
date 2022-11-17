@@ -25,7 +25,7 @@ until oc apply -k util/gitea/; do sleep 2; done
 Let's prepare some environment variables:
 
 ```sh
-export GIT_REVISION=main
+export GIT_REVISION=fb-jenkins
 
 # Gitea
 export GIT_USERNAME=gramola
@@ -156,13 +156,13 @@ In order to refer to a repository in ArgoCD you have to register it before, the 
 
 
 ```sh
-argocd repo add https://${GIT_HOST}/${GIT_USERNAME}/${BASE_REPO_NAME}.git --username ${GIT_USERNAME} --password ${GIT_PAT} --upsert --grpc-web
+argocd repo add https://${GIT_HOST}/${GIT_USERNAME}/${BASE_REPO_NAME}.git --username ${GIT_USERNAME} --password ${GIT_PAT} --upsert --insecure --grpc-web --insecure-skip-server-verification
 ```
 
 Run this command to list the registered repositories.
 
 ```sh
-argocd repo list
+argocd repo list --insecure --grpc-web
 ```
 
 # Register additional clusters
@@ -197,7 +197,7 @@ argocd cluster list
 **IMPORTANT:** Now you have to log back in the cluster where ArgoCD is running.
 
 ```sh
-argocd proj list
+argocd proj list --insecure --grpc-web
 ```
 
 # Create Root Apps

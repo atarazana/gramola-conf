@@ -1,9 +1,5 @@
 #!/bin/sh
 ARGOCD_APP_NAME=gramola-events
-GIT_URL=https://github.com
-GIT_USERNAME=atarazana
-BASE_REPO_NAME=gramola-conf
-GIT_REVISION=main
-helm template . --name-template ${ARGOCD_APP_NAME} \
-  --set debug=${DEBUG},clusterName=${DESTINATION_NAME},gitUrl=${GIT_URL},gitUsername=${GIT_USERNAME},baseRepoName=${BASE_REPO_NAME},gitRevision=${GIT_REVISION} \
-  --include-crds
+BASE_REPO_URL=https://repository-gitea-system.apps.cluster-e608.e608.sandbox465.opentlc.com/user1/gramola
+NAMESPACE_SUFFIX="-user1"
+helm template . --name-template ${ARGOCD_APP_NAME} --set baseRepoUrl=${BASE_REPO_URL},username=${USERNAME},namespaceSuffix=${NAMESPACE_SUFFIX} --include-crds

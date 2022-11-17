@@ -2,17 +2,17 @@ apiVersion: tekton.dev/v1beta1
 kind: ClusterTask
 metadata:
   annotations:
-    tekton.dev/displayName: GitHub create pull request cluster task
+    tekton.dev/displayName: Gitea create pull request cluster task
     tekton.dev/pipelines.minVersion: '0.19'
-    tekton.dev/tags: 'pr, github'
-  name: {{ printf "pr-create%s" .Values.namespaceSuffix }}
+    tekton.dev/tags: 'pr, gitea'
+  name: {{ printf "gitea-pr-create%s" .Values.namespaceSuffix }}
 
   labels:
     app.kubernetes.io/version: '0.1'
     operator.tekton.dev/provider-type: redhat
 spec:
   description: >-
-    These Tasks are GitHub tasks to work with repositories used by other tasks in
+    These Tasks are Gites tasks to work with repositories used by other tasks in
     your Pipeline.
 
     The pr-create Task will...
@@ -23,6 +23,10 @@ spec:
     - description: PR Body
       name: PR_BODY
       type: string
+    - description: PR Base Branch
+      name: PR_BASE
+      type: string
+      default: main
     - description: Personal Access Token Secret Name
       name: PAT_SECRET_NAME
       type: string
@@ -43,6 +47,8 @@ spec:
       name: TASK_IMAGE
       type: string
   results:
+    - description: Head branch (to merge with base)
+      name: PR_HEAD
     - description: The precise URL that was created for the PR
       name: PR_URL
   steps:
@@ -51,7 +57,7 @@ spec:
       resources: {}
       workingDir: $(workspaces.source.path)
       env:
-        - name: GITHUB_TOKEN
+        - name: GIT_TOKEN
           valueFrom:
             secretKeyRef:
               name: $(params.PAT_SECRET_NAME)
@@ -82,7 +88,7 @@ spec:
       resources: {}
       workingDir: $(workspaces.source.path)
       env:
-        - name: GITHUB_TOKEN
+        - name: GIT_TOKEN
           valueFrom:
             secretKeyRef:
               name: $(params.PAT_SECRET_NAME)
@@ -109,33 +115,76 @@ spec:
 
         # Push changes
         git push origin ${BRANCH_NAME}
+
+        echo -n "${BRANCH_NAME}" > $(results.PR_HEAD.path)
     - image: $(params.TASK_IMAGE)
       name: create
       resources: {}
       workingDir: $(workspaces.source.path)
       env:
-        - name: GITHUB_TOKEN
+        - name: PR_BASE
+          value: $(params.PR_BASE)
+        - name: PR_TITLE
+          value: $(params.PR_TITLE)
+        - name: PR_BODY
+          value: $(params.PR_BODY)
+        - name: GIT_TOKEN
           valueFrom:
             secretKeyRef:
               name: $(params.PAT_SECRET_NAME)
               key: $(params.PAT_SECRET_KEY)
       script: |
         #!/bin/sh
-        echo "PR_TITLE=$(params.PR_TITLE)"
-        echo "PR_BODY=$(params.PR_BODY)"
+        PR_HEAD=$(cat $(results.PR_HEAD.path))
+
+        echo "GIT_TOKEN=${GIT_TOKEN}"
+        echo "PR_BASE=${PR_BASE}"
+        echo "PR_HEAD=${PR_HEAD}"
+        echo "PR_TITLE=${PR_TITLE}"
+        echo "PR_BODY=${PR_BODY}"
+        PR_BODY_ESCAPED=$(echo ${PR_BODY} | sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/\\n/g')
+        PR_BODY_B64=$(echo ${PR_BODY} | base64)
+        echo "PR_BODY_B64=${PR_BODY_B64}"
         echo "PAT_SECRET_NAME=$(params.PAT_SECRET_NAME)"
         echo "PAT_SECRET_KEY=$(params.PAT_SECRET_KEY)"
 
         echo "WORKING_DIR=$(workspaces.source.path)"
         echo "PWD=`pwd`"
 
-        # Login `gh` using a Personal Access Token
-        echo ${GITHUB_TOKEN} > ./github.token 
-        gh auth login --with-token < ./github.token 
+        GIT_REMOTE_URL=$(git remote get-url --push origin)
+        echo "GIT_REMOTE_URL=${GIT_REMOTE_URL}"
+        
+        GIT_API_HOST=$(echo ${GIT_REMOTE_URL} | sed -e 's|^[^/]*//||' -e 's|/.*$||')
+        GIT_REPO_NAME=$(echo ${GIT_REMOTE_URL} | sed -e 's|^[^/]*//||' -e 's|^[^/]*/||' | sed -e 's/\.git//')
+        
+        echo "GIT_API_HOST=${GIT_API_HOST}"
+        echo "GIT_REPO_NAME=${GIT_REPO_NAME}"
+
+        # BODY='"base": "'"${PR_BASE}"'","body": "'"${PR_BODY}"'","head": "'"${PR_HEAD}"'","title": "'"${PR_TITLE}"'"'
+        # echo "BODY=${BODY}"
 
         # Create a PR
-        PR_CREATE_OUT=`gh pr create --title "$(params.PR_TITLE)" --body "$(params.PR_BODY)"`
-        PR_URL=`echo ${PR_CREATE_OUT} | grep -e "https://github.com/.*/pull"`
+        cat <<EOF > /tmp/pr.json
+        {
+          "base": "${PR_BASE}",
+          "head": "${PR_HEAD}",
+          "title": "${PR_TITLE}",
+          "body": "${PR_BODY_ESCAPED}"
+        }
+        EOF
+
+        cat /tmp/pr.json
+
+        PR_CREATE_OUT=$(curl -k -vvv -X 'POST' \
+          'https://'"${GIT_API_HOST}"'/api/v1/repos/'"${GIT_REPO_NAME}"'/pulls' \
+          -H 'accept: application/json' \
+          -H 'Authorization: token '"${GIT_TOKEN}"'' \
+          -H 'Content-Type: application/json' \
+          -d @/tmp/pr.json )
+
+        echo "PR_CREATE_OUT=${PR_CREATE_OUT}"
+
+        PR_URL=`echo ${PR_CREATE_OUT} | jq .url`
 
         echo -n "${PR_URL}" > $(results.PR_URL.path)
   workspaces:

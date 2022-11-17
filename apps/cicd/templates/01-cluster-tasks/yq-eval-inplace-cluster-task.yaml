@@ -5,14 +5,14 @@ metadata:
     tekton.dev/displayName: GitHub create pull request cluster task
     tekton.dev/pipelines.minVersion: '0.19'
     tekton.dev/tags: 'yq, github'
-  name: yq-eval-in-place
+  name: {{ printf "yq-eval-in-place%s" .Values.namespaceSuffix }}
 
   labels:
     app.kubernetes.io/version: '0.1'
     operator.tekton.dev/provider-type: redhat
 spec:
   description: >-
-    These Task evaluates an expression and make changes in-place.
+        These Task evaluates an expression and make changes in-place.
   params:
     # - description: File to update in-place, it should be a YAML file
     #   name: FILE_TO_UPDATE
@@ -34,9 +34,15 @@ spec:
     - description: Expression to select the node to update
       name: SELECT_EXPRESSION
       type: string
+    - description: Expression to select the node to update
+      name: SELECT_EXPRESSIONS
+      type: array
     - description: New 'string' value.
       name: NEW_VALUE
       type: string
+    - description: New array of values.
+      name: NEW_VALUES
+      type: array
     - default: quay.io/atarazana/yq:0.0.1
       description: the image used where the yq binary is
       name: TASK_IMAGE
@@ -49,8 +55,20 @@ spec:
       name: eval
       resources: {}
       workingDir: $(workspaces.source.path)
+      args:
+        - '$(params.SELECT_EXPRESSIONS[*])'
+        - '$(params.NEW_VALUES[*])'
       script: |
         #!/bin/sh
+
+        echo "ARGS_NUM: $#"
+        echo "ARGS: $@"
+
+        NUM_ARGS=$#
+        if [ "${NUM_ARGS}" -le 0 ] || [ $((NUM_ARGS%2)) -ne 0 ] ; then
+            echo "Number of parameters should be greater than zero and an even number"
+            exit 1
+        fi
 
         #echo "SELECT_EXPRESSION=\"$(params.SELECT_EXPRESSION)\""
 
@@ -71,25 +89,57 @@ spec:
         cat ${FILE_TO_UPDATE}
 
         # Update target with new value
-        yq -i eval '$(params.SELECT_EXPRESSION) |= "$(params.NEW_VALUE)"' ${FILE_TO_UPDATE}
+        #yq -i eval '$(params.SELECT_EXPRESSION) |= "$(params.NEW_VALUE)"' ${FILE_TO_UPDATE}
+        let END=${NUM_ARGS}/2
+        for i in $(seq 1 ${END}); 
+        do
+            let j=${i}
+            SELECT_EXPRESSION=${!j}
+            let k=${j}+${END}
+            NEW_VALUE=${!k}
+
+            # Update target with new value
+            echo "SELECT_EXPRESSION=${SELECT_EXPRESSION} NEW_VALUE=${NEW_VALUE}"
+            YQ_SENTENCE=$(printf "yq -i eval \'${SELECT_EXPRESSION} |= \"${NEW_VALUE}\"\' $FILE_TO_UPDATE")
+            echo "YQ_SENTENCE=${YQ_SENTENCE}"
+            #yq -i eval ''"${SELECT_EXPRESSION}"' |= strenv(NEW_VALUE)' $FILE_TO_UPDATE
+            eval ${YQ_SENTENCE}
+        done
         
         echo "======== AFTER CHANGES ========"
 
-        cat ${FILE_TO_UPDATE}
+        git diff ${FILE_TO_UPDATE}
 
         # If twin env
         FILE_TO_UPDATE_TWIN="$(params.OVERLAYS_PATH)/$(params.OVERLAY)-$(params.TWIN_OVERLAY_SUFFIX)/$(params.FILE_NAME)"
-        echo "FILE_TO_UPDATE=${FILE_TO_UPDATE}"
+        echo "FILE_TO_UPDATE_TWIN=${FILE_TO_UPDATE_TWIN}"
 
         if [ -f ${FILE_TO_UPDATE_TWIN} ]; then
           echo "======== UPDATING TWIN OVERLAY ========"
           # Update target with new value
-          yq -i eval '$(params.SELECT_EXPRESSION) |= "$(params.NEW_VALUE)"' ${FILE_TO_UPDATE_TWIN}
+          #yq -i eval '$(params.SELECT_EXPRESSION) |= "$(params.NEW_VALUE)"' ${FILE_TO_UPDATE_TWIN}
+          for i in $(seq 1 ${END}); 
+          do
+              let j=${i}
+              SELECT_EXPRESSION=${!j}
+              let k=${j}+${END}
+              NEW_VALUE=${!k}
+
+              # Update target with new value
+              #echo "SELECT_EXPRESSION=${SELECT_EXPRESSION} NEW_VALUE=${NEW_VALUE}"
+              #yq -i eval ''"${SELECT_EXPRESSION}"' |= strenv(NEW_VALUE)' ${FILE_TO_UPDATE_TWIN}
+              # Update target with new value
+              echo "SELECT_EXPRESSION=${SELECT_EXPRESSION} NEW_VALUE=${NEW_VALUE}"
+              YQ_SENTENCE=$(printf "yq -i eval \'${SELECT_EXPRESSION} |= \"${NEW_VALUE}\"\' $FILE_TO_UPDATE_TWIN")
+              echo "YQ_SENTENCE=${YQ_SENTENCE}"
+              #yq -i eval ''"${SELECT_EXPRESSION}"' |= strenv(NEW_VALUE)' $FILE_TO_UPDATE
+              eval ${YQ_SENTENCE}
+          done
         else
           echo "TWIN OVERLAY NOT FOUND!"
         fi;
 
-        #echo -n "true" > $(results.SUCCESS)
+        #echo -n "true" > $(results.SUCCESS)        
   workspaces:
     - mountPath: /workspace/source
       name: source
