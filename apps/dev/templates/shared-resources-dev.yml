@@ -25,5 +25,5 @@ spec:
           value: "{{ .Values.username }}"
     path: apps/dev/shared
     repoURL: "{{ .Values.baseRepoUrl }}.git"
-    targetRevision: HEAD
+    targetRevision: {{ .Values.gitRevision }}
     

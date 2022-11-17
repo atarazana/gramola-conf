@@ -23,7 +23,7 @@ spec:
     #       value: {{ .Values.destinationName }}
     path: gateway-deployment/overlays/test-cloud
     repoURL: {{ .Values.baseRepoUrl }}
-    targetRevision: HEAD
+    targetRevision: {{ .Values.gitRevision }}
     plugin:
       env:
         - name: DESTINATION_NAME
@@ -32,4 +32,6 @@ spec:
           value: "{{ .Values.baseRepoUrl }}"
         - name: NAMESPACE_SUFFIX
           value: "{{ .Values.namespaceSuffix }}"
+        - name: GIT_REVISION
+          value: "{{ .Values.gitRevision }}"
       name: kustomized-helm
