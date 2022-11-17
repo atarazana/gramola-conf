@@ -25,7 +25,7 @@ until oc apply -k util/gitea/; do sleep 2; done
 Let's prepare some environment variables:
 
 ```sh
-export GIT_REVISION=fb-jenkins
+export GIT_REVISION=main
 
 # Gitea
 export GIT_USERNAME=gramola
