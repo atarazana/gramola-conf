@@ -1,0 +1,75 @@
+appName: gramola
+
+gitUrl: https://github.com
+gitRevision: main
+gitUsername: atarazana
+baseRepoName: gramola
+gitContextDir: .
+
+gitSslVerify: true
+
+containerRegistryServer: quay.io
+containerRegistryOrg: varadero
+
+containerRegistryTlsVerify: true
+
+jnlpServiceName: jenkins-jnlp
+
+jenkinsServiceName: jenkins
+jenkinsNamespace: jenkins-cicd
+cicdNamespace: gramola-cicd
+
+jenkinsMemory: 5Gi
+jenkinsStorageSize: 3Gi
+
+jenkinsEnableOauth: true
+jenkinsEnableFatalErrorLogFile: false
+jenkinsUpdateCenterInsecure: true
+jenkinsDisableAdministrativeMonitors: false
+
+jenkinsImageStreamTag: 'jenkins:2'
+jenkinsImageStreamTagNamespace: 'openshift'
+
+buildahBuilderImage: registry.redhat.io/rhel8/buildah@sha256:6a68ece207bc5fd8db2dd5cc2d0b53136236fb5178eb5b71eebe5d07a3c33d13
+jbossEapBuilderImage: image-registry.openshift-image-registry.svc:5000/gramola-cicd/jboss-eap-openshift:1.2
+
+jenkinsServiceAccountName: jenkins-sa
+
+jenkinsAgentName: jenkins-agent-maven-gitops
+jenkinsAgentContextDir: /apps/cicd-jenkins/ose-jenkins-agent-maven-custom
+jenkinsAgentFilePath: Containerfile
+jenkinsAgentBaseImage: registry.redhat.io/openshift4/ose-jenkins-agent-maven:v4.10
+
+containerRegistrySecretName: container-registry-secret
+gitPatSecretName: git-pat-secret
+gitPatSecretKey: password
+
+# Pipelines have these stages => overlays
+overlays: "dev,test"
+
+# Service names Gramola is made of services, these are their names
+gramolaEventsServiceName: events
+gramolaGatewayServiceName: gateway
+
+# Overlays relative path in the config repository
+gramolaEventsOverlayPath: ./events-deployment/overlays
+gramolaGatewayOverlayPath: ./gateway-deployment/overlays
+
+# Pipeline
+pipelineClusterName: awsmanaged-1
+pipelineCredentials: jenkins-bot
+
+gramolaEventsBuildConfigName: gramola-events-s2i-bc
+gramolaEventsPipelineImageTagName: gramola-events:latest
+
+gramolaGatewayBuildConfigName: gramola-gateway-s2i-bc
+gramolaGatewayPipelineImageTagName: gramola-gateway:latest
+
+# Proxy
+proxyEnabled: true
+proxyHttpUrl: "http://proxyweb.metromadrid.net:80/"
+proxyHttpsUrl: "http://proxyweb.metromadrid.net:80/"
+proxyExceptions: >-
+  ".cluster.local,.corp,.local,.novalocal,.svc,10.0.0.0/8,10.8.68.0/24,127.0.0.1,172.16.0.0/14,172.20.0.0/16,api-int.cody.metromadrid.net,localhost,metromadrid.net"
+
+            

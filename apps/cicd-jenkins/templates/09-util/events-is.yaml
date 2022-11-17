@@ -1,0 +1,10 @@
+kind: ImageStream
+apiVersion: image.openshift.io/v1
+metadata:
+  name: "{{ .Values.appName }}-{{ .Values.gramolaEventsServiceName }}"
+  namespace: '{{ .Values.jenkinsNamespace }}'
+  labels:
+    app: "{{ .Values.appName }}-{{ .Values.gramolaEventsServiceName }}-app"
+spec:
+  lookupPolicy:
+    local: false

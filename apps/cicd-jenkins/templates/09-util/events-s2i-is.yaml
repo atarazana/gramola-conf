@@ -1,0 +1,10 @@
+kind: ImageStream
+apiVersion: image.openshift.io/v1
+metadata:
+  name: "{{ .Values.appName }}-xyz"
+  namespace: '{{ .Values.jenkinsNamespace }}'
+  labels:
+    app: "{{ .Values.appName }}-xyz-app"
+spec:
+  lookupPolicy:
+    local: false
