@@ -264,7 +264,7 @@ spec:
         - name: GIT_URL
           value: '{{ .Values.gitUrl }}/{{ .Values.gitUsername }}/{{ .Values.appName }}-{{ .Values.gramolaGatewayServiceName }}'
         - name: GIT_REF
-          value: '{{ .Values.gitRevision }}'
+          value: 'main'
         - name: GIT_CONTEXT_DIR
           value: '{{ .Values.gitContextDir }}'
         - name: GIT_CONF_URL

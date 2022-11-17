@@ -39,7 +39,7 @@ spec:
     type: Git
     git:
       uri: '{{ .Values.gitUrl }}/{{ .Values.gitUsername }}/{{ .Values.appName }}-{{ .Values.gramolaGatewayServiceName }}'
-      ref: '{{ .Values.gitRevision }}'
+      ref: 'main'
     contextDir: /
     sourceSecret:
       name: {{ .Values.gitPatSecretName }}
