@@ -1,8 +1,6 @@
-appName: gramola
-gitUrl: https://github.com
-gitRevision: main
-gitUsername: atarazana
-baseRepoName: gramola-conf
+baseRepoUrl: https://github.com/atarazana/gramola
 debug: false
 destinationName: in-cluster
-
+namespaceBase: gramola-dev
+namespaceSuffix: ""
+username: ""

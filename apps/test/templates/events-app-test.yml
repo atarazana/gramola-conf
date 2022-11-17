@@ -1,13 +1,15 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: events-app-test
+  name: {{ printf "events-app-%s%s" "test" .Values.namespaceSuffix }}
   namespace: openshift-gitops
+  labels:
+    username: {{ .Values.username }}
   finalizers:
   - resources-finalizer.argocd.argoproj.io
 spec:
   destination:
-    namespace: gramola-test
+    namespace: {{ printf "%s%s" .Values.namespaceBase .Values.namespaceSuffix }}
     name: {{ .Values.destinationName }}
   project: gramola-project-test
   syncPolicy:
@@ -20,18 +22,14 @@ spec:
     #     - name: clusterName
     #       value: {{ .Values.destinationName }}
     path: events-deployment/overlays/test
-    repoURL: "{{ .Values.gitUrl }}/{{ .Values.gitUsername }}/{{ .Values.baseRepoName }}.git"
-    targetRevision: {{ .Values.gitRevision }}
+    repoURL: "{{ .Values.baseRepoUrl }}.git"
+    targetRevision: HEAD
     plugin:
       env:
         - name: DESTINATION_NAME
           value: "{{ .Values.destinationName }}"
-        - name: GIT_URL
-          value: "{{ .Values.gitUrl }}"
-        - name: GIT_USERNAME
-          value: "{{ .Values.gitUsername }}"
-        - name: BASE_REPO_NAME
-          value: "{{ .Values.baseRepoName }}"
-        - name: GIT_REVISION
-          value: "{{ .Values.gitRevision }}"
+        - name: BASE_REPO_URL
+          value: "{{ .Values.baseRepoUrl }}"
+        - name: NAMESPACE_SUFFIX
+          value: "{{ .Values.namespaceSuffix }}"
       name: kustomized-helm

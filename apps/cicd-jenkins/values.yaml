@@ -3,7 +3,7 @@ appName: gramola
 gitUrl: https://github.com
 gitRevision: main
 gitUsername: atarazana
-baseRepoName: gramola
+baseRepoName: gramola-conf
 gitContextDir: .
 
 gitSslVerify: true

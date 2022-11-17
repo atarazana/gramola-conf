@@ -3,20 +3,27 @@ kind: Application
 metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "-1"
-  name: shared-resources-dev
+  labels:
+    username: {{ .Values.username }}
+  name: {{ printf "shared-resources-%s%s" "dev" .Values.namespaceSuffix }}
   namespace: openshift-gitops
   finalizers:
   - resources-finalizer.argocd.argoproj.io
 spec:
   syncPolicy:
-    automated:
-      selfHeal: true
+    automated: {}
   destination:
-    namespace: gramola-dev
+    namespace: {{ printf "%s%s" .Values.namespaceBase .Values.namespaceSuffix }}
     name: {{ .Values.destinationName }}
   project: gramola-project-dev
   source:
+    helm:
+      parameters:
+        - name: namespaceSuffix
+          value: "{{ .Values.namespaceSuffix }}"
+        - name: username
+          value: "{{ .Values.username }}"
     path: apps/dev/shared
-    repoURL: "{{ .Values.gitUrl }}/{{ .Values.gitUsername }}/{{ .Values.baseRepoName }}.git"
-    targetRevision: {{ .Values.gitRevision }}
+    repoURL: "{{ .Values.baseRepoUrl }}.git"
+    targetRevision: HEAD
     
